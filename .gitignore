@@ -1,0 +1,22 @@
+# Artefactos de compilación Maven — nunca subir al repo
+target/
+
+# Archivos de configuración local con contraseñas
+application-local.properties
+application-*.properties
+!application.properties
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
