@@ -8,7 +8,7 @@ Intermediario entre el frontend React y los microservicios internos. Agrega dato
 
 ## Puerto
 
-`8080`
+`8088` (el BFF queda detras del API Gateway, que es la entrada unica en el puerto `8080`).
 
 ## Tecnologías
 
@@ -24,8 +24,8 @@ Intermediario entre el frontend React y los microservicios internos. Agrega dato
 ## Arquitectura
 
 ```
-Frontend → [BFF] → ms-inventario (puerto 8081)
-                 → ms-pedidos    (puerto 8082)
+Frontend → API Gateway (8080) → [BFF] (8088) → ms-inventario (8081)
+                                              → ms-pedidos    (8082)
 ```
 
 El BFF **no tiene base de datos**. Su arquitectura es:
