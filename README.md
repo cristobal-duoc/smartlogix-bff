@@ -60,10 +60,25 @@ mvn spring-boot:run
 | GET | `/api/bff/dashboard` | Productos + pedidos agregados |
 | GET | `/actuator/health` | Estado del Circuit Breaker |
 
-## Tests
+## Pruebas y cobertura
+
+Pruebas unitarias con **JUnit 5 + Mockito** y **MockRestServiceServer** (simula las
+respuestas HTTP de los microservicios, sin necesidad de tenerlos corriendo).
 
 ```bash
-mvn test
+mvn test      # ejecuta las pruebas
+mvn verify    # pruebas + reporte de cobertura + validacion del minimo (>=60%)
 ```
 
-- `BffServiceTest`: prueba la lógica de agregación con mocks de los clientes (6 casos)
+- `BffServiceTest`: lógica de agregación con mocks de los clientes (6 casos).
+- `BffControllerTest`: capa REST y códigos HTTP / 404 (5 casos).
+- `InventarioClientTest` / `PedidosClientTest`: llamadas REST y fallback del Circuit Breaker (6 casos).
+- `OpenApiExportTest`: genera la especificación Swagger en `api-docs/openapi.json`.
+
+Reporte de cobertura (JaCoCo): `target/site/jacoco/index.html`. La regla `jacoco:check`
+falla el build si la cobertura baja del 60%. Cobertura actual: **95.6%**.
+
+## API REST (Swagger)
+
+Con el servicio corriendo: UI en `/swagger-ui.html` y especificación JSON en
+`/v3/api-docs` (copia versionada en `api-docs/openapi.json`).

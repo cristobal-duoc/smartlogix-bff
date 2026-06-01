@@ -1,0 +1,51 @@
+name: CI
+
+# Pipeline de Integracion Continua.
+# Se ejecuta en cada push y en cada Pull Request hacia main.
+# Compila, corre las pruebas unitarias, valida la cobertura (>=60% con JaCoCo)
+# y, si esta configurado el token, envia el analisis de calidad a SonarCloud.
+
+on:
+  push:
+    branches: [ main, "feature/**" ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-test:
+    name: Build, Test y Cobertura
+    runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    steps:
+      - name: Checkout del codigo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # SonarCloud necesita el historial completo
+
+      - name: Configurar JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Compilar, probar y verificar cobertura (>=60%)
+        run: mvn -B verify
+
+      - name: Publicar reporte de cobertura JaCoCo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: target/site/jacoco/
+
+      - name: Analisis de calidad en SonarCloud
+        if: ${{ env.SONAR_TOKEN != '' }}
+        run: >
+          mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.organization=cristobal-duoc
+          -Dsonar.projectKey=cristobal-duoc_smartlogix-bff
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml

@@ -23,6 +23,12 @@ public class PedidosClient {
         this.restTemplate = new RestTemplate();
     }
 
+    // Constructor de visibilidad de paquete para pruebas: permite inyectar un
+    // RestTemplate observable (MockRestServiceServer) sin tocar el comportamiento real.
+    PedidosClient(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
     // Obtiene todos los pedidos desde ms-pedidos
     @CircuitBreaker(name = "pedidos", fallbackMethod = "obtenerPedidosFallback")
     public List<Map> obtenerPedidos() {

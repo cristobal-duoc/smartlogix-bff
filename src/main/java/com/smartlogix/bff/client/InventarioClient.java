@@ -30,6 +30,12 @@ public class InventarioClient {
         this.restTemplate = new RestTemplate();
     }
 
+    // Constructor de visibilidad de paquete para pruebas: permite inyectar un
+    // RestTemplate observable (MockRestServiceServer) sin tocar el comportamiento real.
+    InventarioClient(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
     // Obtiene todos los productos del microservicio de inventario
     // @CircuitBreaker: si ms-inventario falla, Resilience4j llama a obtenerProductosFallback()
     // name = "inventario": corresponde a la configuración en application.properties
