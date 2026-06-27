@@ -66,4 +66,10 @@ public class InventarioClient {
     public Map obtenerProductoPorIdFallback(Long id, Throwable throwable) {
         return null;
     }
+
+    // Crea un producto en ms-inventario (operación de escritura, sin Circuit Breaker).
+    public Map crearProducto(Map<String, Object> body) {
+        String url = inventarioUrl + "/inventario/productos";
+        return restTemplate.postForObject(url, body, Map.class);
+    }
 }

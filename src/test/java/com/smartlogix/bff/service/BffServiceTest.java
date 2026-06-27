@@ -2,6 +2,7 @@ package com.smartlogix.bff.service;
 
 import com.smartlogix.bff.client.InventarioClient;
 import com.smartlogix.bff.client.PedidosClient;
+import com.smartlogix.bff.client.EnviosClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,6 +27,9 @@ class BffServiceTest {
 
     @Mock
     private PedidosClient pedidosClient;
+
+    @Mock
+    private EnviosClient enviosClient;
 
     @InjectMocks
     private BffService bffService;
@@ -77,25 +81,46 @@ class BffServiceTest {
     }
 
     @Test
-    void obtenerResumenDashboard_debeAgregarProductosYPedidos() {
+    void obtenerEnvios_debeRetornarListaDeEnvios() {
+        // Arrange: el cliente de envios retorna un envio simulado
+        List<Map> enviosSimulados = Arrays.asList(
+                Map.of("id", 1, "pedidoId", 1, "transportista", "Chilexpress", "estado", "EN_RUTA")
+        );
+        when(enviosClient.obtenerEnvios()).thenReturn(enviosSimulados);
+
+        // Act
+        List<Map> resultado = bffService.obtenerEnvios();
+
+        // Assert
+        assertEquals(1, resultado.size());
+        assertEquals("Chilexpress", resultado.get(0).get("transportista"));
+        verify(enviosClient, times(1)).obtenerEnvios();
+    }
+
+    @Test
+    void obtenerResumenDashboard_debeAgregarProductosPedidosYEnvios() {
         // Arrange: cada cliente retorna sus datos
         List<Map> productos = Arrays.asList(Map.of("id", 1, "nombre", "Camiseta M"));
         List<Map> pedidos = Arrays.asList(Map.of("id", 1, "codigo", "ORD-001"));
+        List<Map> envios = Arrays.asList(Map.of("id", 1, "transportista", "Chilexpress"));
 
         when(inventarioClient.obtenerProductos()).thenReturn(productos);
         when(pedidosClient.obtenerPedidos()).thenReturn(pedidos);
+        when(enviosClient.obtenerEnvios()).thenReturn(envios);
 
-        // Act: el BFF agrega ambas listas en un solo Map
+        // Act: el BFF agrega las tres listas en un solo Map
         Map<String, Object> dashboard = bffService.obtenerResumenDashboard();
 
-        // Assert: el dashboard contiene tanto productos como pedidos
+        // Assert: el dashboard contiene productos, pedidos y envios
         assertNotNull(dashboard);
         assertTrue(dashboard.containsKey("productos"));
         assertTrue(dashboard.containsKey("pedidos"));
+        assertTrue(dashboard.containsKey("envios"));
 
         // Verify: cada cliente fue consultado exactamente una vez
         verify(inventarioClient, times(1)).obtenerProductos();
         verify(pedidosClient, times(1)).obtenerPedidos();
+        verify(enviosClient, times(1)).obtenerEnvios();
     }
 
     @Test

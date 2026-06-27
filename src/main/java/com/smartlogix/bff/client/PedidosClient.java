@@ -40,4 +40,12 @@ public class PedidosClient {
     public List<Map> obtenerPedidosFallback(Throwable throwable) {
         return Collections.emptyList();
     }
+
+    // Crea un pedido en ms-pedidos (operación de escritura).
+    // No lleva Circuit Breaker: si la creación falla, el error debe llegar al usuario,
+    // no enmascararse con un fallback silencioso.
+    public Map crearPedido(Map<String, String> body) {
+        String url = pedidosUrl + "/api/pedidos";
+        return restTemplate.postForObject(url, body, Map.class);
+    }
 }

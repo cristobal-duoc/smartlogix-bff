@@ -48,4 +48,16 @@ class PedidosClientTest {
         assertNotNull(resultado);
         assertTrue(resultado.isEmpty());
     }
+
+    @Test
+    void crearPedido_debeEnviarPostYRetornarElCreado() {
+        server.expect(requestTo("http://ms-pedidos/api/pedidos"))
+              .andExpect(org.springframework.test.web.client.match.MockRestRequestMatchers.method(org.springframework.http.HttpMethod.POST))
+              .andRespond(withSuccess("{\"id\":9,\"codigo\":\"PED-009\",\"tipo\":\"URGENTE\"}", MediaType.APPLICATION_JSON));
+
+        Map creado = pedidosClient.crearPedido(java.util.Map.of("codigo", "PED-009", "tipo", "URGENTE", "clienteId", "1"));
+
+        assertEquals("URGENTE", creado.get("tipo"));
+        server.verify();
+    }
 }

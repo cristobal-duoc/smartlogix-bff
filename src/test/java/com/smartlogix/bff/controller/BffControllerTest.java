@@ -66,13 +66,24 @@ class BffControllerTest {
     }
 
     @Test
+    void obtenerEnvios_debeDelegarEnElService() {
+        when(bffService.obtenerEnvios()).thenReturn(List.of(Map.of("id", 5, "transportista", "Starken")));
+
+        List<Map> resultado = bffController.obtenerEnvios();
+
+        assertEquals(1, resultado.size());
+        verify(bffService).obtenerEnvios();
+    }
+
+    @Test
     void obtenerDashboard_debeRetornarResumenAgregado() {
         when(bffService.obtenerResumenDashboard())
-                .thenReturn(Map.of("productos", List.of(), "pedidos", List.of()));
+                .thenReturn(Map.of("productos", List.of(), "pedidos", List.of(), "envios", List.of()));
 
         Map<String, Object> resp = bffController.obtenerDashboard();
 
         assertTrue(resp.containsKey("productos"));
         assertTrue(resp.containsKey("pedidos"));
+        assertTrue(resp.containsKey("envios"));
     }
 }

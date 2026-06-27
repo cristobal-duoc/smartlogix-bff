@@ -67,4 +67,16 @@ class InventarioClientTest {
 
         assertNull(resultado);
     }
+
+    @Test
+    void crearProducto_debeEnviarPostYRetornarElCreado() {
+        server.expect(requestTo("http://ms-inventario/inventario/productos"))
+              .andExpect(org.springframework.test.web.client.match.MockRestRequestMatchers.method(org.springframework.http.HttpMethod.POST))
+              .andRespond(withSuccess("{\"id\":3,\"nombre\":\"Monitor\",\"stock\":8}", MediaType.APPLICATION_JSON));
+
+        Map creado = inventarioClient.crearProducto(java.util.Map.of("nombre", "Monitor", "stock", 8, "bodega", "Bodega Sur", "precio", 129990));
+
+        assertEquals("Monitor", creado.get("nombre"));
+        server.verify();
+    }
 }

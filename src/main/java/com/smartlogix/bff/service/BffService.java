@@ -2,6 +2,7 @@ package com.smartlogix.bff.service;
 
 import com.smartlogix.bff.client.InventarioClient;
 import com.smartlogix.bff.client.PedidosClient;
+import com.smartlogix.bff.client.EnviosClient;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -18,11 +19,14 @@ public class BffService {
     // Clientes HTTP que se comunican con los microservicios
     private final InventarioClient inventarioClient;
     private final PedidosClient pedidosClient;
+    private final EnviosClient enviosClient;
 
     // Inyección por constructor: las dependencias son explícitas y testeables
-    public BffService(InventarioClient inventarioClient, PedidosClient pedidosClient) {
+    public BffService(InventarioClient inventarioClient, PedidosClient pedidosClient,
+                      EnviosClient enviosClient) {
         this.inventarioClient = inventarioClient;
         this.pedidosClient = pedidosClient;
+        this.enviosClient = enviosClient;
     }
 
     // Obtiene todos los productos desde ms-inventario
@@ -42,12 +46,33 @@ public class BffService {
         return pedidosClient.obtenerPedidos();
     }
 
-    // Agrega datos de inventario y pedidos en una sola respuesta para el frontend
-    // Este es el valor principal del BFF: el frontend hace 1 llamada en vez de 2
+    // Obtiene todos los envios desde ms-envios
+    // El Circuit Breaker en EnviosClient devuelve lista vacía si el servicio falla
+    public List<Map> obtenerEnvios() {
+        return enviosClient.obtenerEnvios();
+    }
+
+    // Agrega datos de inventario, pedidos y envios en una sola respuesta para el frontend
+    // Este es el valor principal del BFF: el frontend hace 1 llamada en vez de 3
     public Map<String, Object> obtenerResumenDashboard() {
         Map<String, Object> resumen = new HashMap<>();
         resumen.put("productos", inventarioClient.obtenerProductos());
         resumen.put("pedidos", pedidosClient.obtenerPedidos());
+        resumen.put("envios", enviosClient.obtenerEnvios());
         return resumen;
+    }
+
+    // --- Operaciones de creación (escritura): el BFF reenvía al microservicio correspondiente ---
+
+    public Map crearProducto(Map<String, Object> body) {
+        return inventarioClient.crearProducto(body);
+    }
+
+    public Map crearPedido(Map<String, String> body) {
+        return pedidosClient.crearPedido(body);
+    }
+
+    public Map crearEnvio(Map<String, Object> body) {
+        return enviosClient.crearEnvio(body);
     }
 }

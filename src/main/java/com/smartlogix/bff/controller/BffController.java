@@ -45,10 +45,36 @@ public class BffController {
         return bffService.obtenerPedidos();
     }
 
-    // GET /api/bff/dashboard → datos agregados: productos + pedidos en una sola llamada
+    // GET /api/bff/envios → lista todos los envíos (proxy a ms-envios)
+    @GetMapping("/envios")
+    public List<Map> obtenerEnvios() {
+        return bffService.obtenerEnvios();
+    }
+
+    // GET /api/bff/dashboard → datos agregados: productos + pedidos + envíos en una sola llamada
     // Permite al frontend cargar el dashboard con un solo request HTTP
     @GetMapping("/dashboard")
     public Map<String, Object> obtenerDashboard() {
         return bffService.obtenerResumenDashboard();
+    }
+
+    // --- Creación: el frontend crea recursos a través del BFF (POST) ---
+
+    // POST /api/bff/productos → crea un producto en ms-inventario
+    @PostMapping("/productos")
+    public ResponseEntity<Map> crearProducto(@RequestBody Map<String, Object> body) {
+        return ResponseEntity.ok(bffService.crearProducto(body));
+    }
+
+    // POST /api/bff/pedidos → crea un pedido en ms-pedidos
+    @PostMapping("/pedidos")
+    public ResponseEntity<Map> crearPedido(@RequestBody Map<String, String> body) {
+        return ResponseEntity.ok(bffService.crearPedido(body));
+    }
+
+    // POST /api/bff/envios → crea un envío en ms-envios
+    @PostMapping("/envios")
+    public ResponseEntity<Map> crearEnvio(@RequestBody Map<String, Object> body) {
+        return ResponseEntity.ok(bffService.crearEnvio(body));
     }
 }
